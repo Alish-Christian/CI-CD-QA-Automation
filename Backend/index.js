@@ -2,6 +2,17 @@ const express = require('express')
 const {main}=require('../Backend/utils/gemini')
 const app = express()
 const port = 3000
+function extractJavaScriptBlocks(text) {
+  const regex = /```javascript([\s\S]*?)```/g;
+  const matches = [];
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    matches.push(match[1].trim());
+  }
+
+  return matches;
+}
 
 // Add this line BEFORE your routes
 app.use(express.json());
@@ -19,8 +30,10 @@ app.post('/process', async (req, res) => {
   }
 
   // Example: just echo back the input
-  const response = await main(userInput);
-  res.json({ response });
+  const response = await main(JSON.stringify(userInput));
+
+//  const op=extractJavaScriptBlocks(response);
+  res.json({ output:response });
 });
 
 app.listen(port, () => {
