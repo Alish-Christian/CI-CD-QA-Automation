@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/navbar';
 import AppFooter from '../components/AppFooter';
-
+import fetchReports from '../api/report';
 // --- Helper Components & Icons (Self-contained) ---
 
 const ZapIcon = ({ className }) => (
@@ -30,32 +30,45 @@ const ExclamationCircleIcon = ({ className }) => (
 
 
 const BarChartPlaceholder = () => (
-    <div className="w-full h-64 bg-base-100/30 rounded-lg flex items-center justify-center p-4">
-        <div className="flex items-end h-full w-full gap-2 sm:gap-4">
-            {[40, 60, 50, 75, 90, 65, 80].map((height, i) => (
-                <div 
-                    key={i} 
-                    className="flex-1 bg-primary rounded-t-lg opacity-75 hover:opacity-100 transition-all duration-300 ease-in-out"
-                    style={{ 
-                        '--bar-height': `${height}%`,
-                        animation: `bar-rise 1s ease-out ${i * 100}ms backwards` 
-                    }}
-                >
-                </div>
-            ))}
-        </div>
+  <div className="w-full h-64 bg-base-100/30 rounded-lg flex items-center justify-center p-4">
+    <div className="flex items-end h-full w-full gap-2 sm:gap-4">
+      {[40, 60, 50, 75, 90, 65, 80].map((height, i) => (
+        <div
+          key={i}
+          className="flex-1 bg-primary rounded-t-lg opacity-75 hover:opacity-100 transition-all duration-300"
+          style={{
+            height: `${height}%`,
+          }}
+        />
+      ))}
     </div>
+  </div>
 );
+
 
 /**
  * Main Dashboard Component
  */
 export default function Dashboard() {
     const [isLoaded, setIsLoaded] = useState(false);
-    useEffect(() => {
-        const timer = setTimeout(() => setIsLoaded(true), 100);
-        return () => clearTimeout(timer);
-    }, []);
+    const [recentRuns, setRecentRuns] = useState([]);
+useEffect(() => {
+    const timer = setTimeout(() => setIsLoaded(true), 100);
+
+    const loadReports = async () => {
+        try {
+            const result = await fetchReports();
+            setRecentRuns(result);
+        } catch (err) {
+            console.error("Error loading reports:", err);
+        }
+    };
+
+    loadReports();
+
+    return () => clearTimeout(timer);
+}, []);
+
 
     const stats = [
         { title: "Overall Pass Rate", value: "92.8%", change: "+1.2%", status: "success" },
@@ -64,13 +77,13 @@ export default function Dashboard() {
         { title: "Critical Failures", value: "3", change: "-2", status: "error" },
     ];
 
-    const recentRuns = [
-        { id: "RUN-2911", branch: "feat/new-login-flow", status: "Passed", duration: "3m 45s", time: "52 minutes ago" },
-        { id: "RUN-2910", branch: "fix/api-caching-bug", status: "Failed", duration: "1m 12s", time: "2 hours ago" },
-        { id: "RUN-2909", branch: "main", status: "Passed", duration: "4m 02s", time: "6 hours ago" },
-        { id: "RUN-2908", branch: "refactor/user-profile", status: "Skipped", duration: "0m 15s", time: "1 day ago" },
-        { id: "RUN-2907", branch: "main", status: "Passed", duration: "3m 58s", time: "1 day ago" },
-    ];
+    // const recentRuns = [
+    //     { id: "RUN-2911", branch: "feat/new-login-flow", status: "Passed", duration: "3m 45s", time: "52 minutes ago" },
+    //     { id: "RUN-2910", branch: "fix/api-caching-bug", status: "Failed", duration: "1m 12s", time: "2 hours ago" },
+    //     { id: "RUN-2909", branch: "main", status: "Passed", duration: "4m 02s", time: "6 hours ago" },
+    //     { id: "RUN-2908", branch: "refactor/user-profile", status: "Skipped", duration: "0m 15s", time: "1 day ago" },
+    //     { id: "RUN-2907", branch: "main", status: "Passed", duration: "3m 58s", time: "1 day ago" },
+    // ];
     
     const statusMap = {
         Passed: { icon: <CheckCircleIcon className="w-5 h-5 text-success" />, color: "text-success" },
@@ -124,7 +137,7 @@ export default function Dashboard() {
                             <div className="flex items-baseline justify-between mt-2">
                                 <p className="text-3xl font-bold text-base-content">{stat.value}</p>
                                 {stat.change && (
-                                    <span className={`text-sm font-semibold ${stat.status === 'success' ? 'text-success' : 'text-error'}`}>
+                                    <span className={`text-sm font-semibold ${stat.failed>0 ? 'text-success' : 'text-error'}`}>
                                         {stat.change}
                                     </span>
                                 )}
@@ -152,15 +165,13 @@ export default function Dashboard() {
                                 <tbody>
                                     {recentRuns.map((run, index) => (
                                         <tr key={run.id} className="hover:bg-black/5 border-b border-black/5 transition-colors duration-300 animate-fade-in-up" style={{ animationDelay: `${500 + index * 80}ms` }}>
-                                            <td className="font-mono text-primary bg-transparent">{run.id}</td>
-                                            <td className="bg-transparent">{run.branch}</td>
+                                            <td className="font-mono text-primary bg-transparent">{run.commit_id}</td>
+                                            <td className="bg-transparent">{run.repo_url}</td>
                                             <td className="bg-transparent">
-                                                <div className={`flex items-center gap-2 font-semibold ${statusMap[run.status].color}`}>
-                                                    {statusMap[run.status].icon} {run.status}
-                                                </div>
+                                                {(run.passed/run.total)*100}% passed
                                             </td>
-                                            <td className="bg-transparent">{run.duration}</td>
-                                            <td className="text-neutral-content/60 bg-transparent">{run.time}</td>
+                                            <td className="bg-transparent">3m 4s</td>
+                                            <td className="text-neutral -content/60 text-white">{run.timestamp}</td>
                                         </tr>
                                     ))}
                                 </tbody>
