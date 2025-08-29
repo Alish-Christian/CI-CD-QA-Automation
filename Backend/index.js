@@ -1,15 +1,30 @@
 const express = require('express')
 const {main,filter}=require('../Backend/utils/gemini')
 const {createFilesFromJson}=require('../Backend/utils/temp')
-const app = express()
-const port = 3000
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const connectDB = require('./Server/config/database');
+const authRoutes = require('./Server/routes/authRoutes');
+const {main,filter}=require('./utils/gemini');
+const reportRoutes = require("./Server/routes/reportRoutes");
+const app = express();
+const port = process.env.PORT || 3000;
 
 
-// Add this line BEFORE your routes
+// Connect to MongoDB
+connectDB();
+
+// Middleware
+app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api',reportRoutes);
+// Existing routes
 app.get('/', (req, res) => {
-  const text=req.
   res.send('Hello World!')
 })
 // POST endpoint
