@@ -1,5 +1,6 @@
 const express = require('express')
 const {main,filter}=require('../Backend/utils/gemini')
+const {createFilesFromJson}=require('../Backend/utils/temp')
 const app = express()
 const port = 3000
 
@@ -21,11 +22,9 @@ app.post('/process', async (req, res) => {
 
   // Example: just echo back the input
   const response = await main(JSON.stringify(userInput));
-
-//const cleanResponse =await filter(response);
-
-//  const op=extractJavaScriptBlocks(response);
-  res.json({ output:response });
+var cleanResponse=response;
+createFilesFromJson(response);
+  res.json({ output:cleanResponse });
 });
 
 app.listen(port, () => {
