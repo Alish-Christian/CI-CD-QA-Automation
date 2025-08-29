@@ -2,23 +2,18 @@ const { GoogleGenAI } = require('@google/genai');
 // Load environment variables
 require('dotenv').config();
 const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_KEY // pass your key here
+  apiKey: "AIzaSyDNLYci6A-piGgCLxu-wv_79-3r1bi6Yl4" // pass your key here
 });
 
-async function main() {
+async function main(input) {
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash",
-    contents: "Explain how AI works in a few words",
+    contents: input,
   });
-
+  
   console.log(response.text);
+  return response.text;
 }
 
-// wrap in async IIFE for top-level await
-(async () => {
-  try {
-    await main();
-  } catch (err) {
-    console.error(err);
-  }
-})();
+// Export all together
+module.exports = {main};
