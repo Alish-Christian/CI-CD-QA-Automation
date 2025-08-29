@@ -4,29 +4,54 @@ require('dotenv').config();
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_KEY2 // pass your key here
 });
-const prompt = `
-for the given js file
-return the output in structured format 
-keep the code minimal and simple and in strict json format
-5 max testcases per problem
-{   
-    "tests/filename.test.js":"code",
-     "tests/filename.testCase.json":"testcases"
+const prompt = `Generate Jest unit tests for the provided JavaScript codebase.
 
-}
-     Test Case JSON Format:
+Requirements:
+- For each JavaScript/TypeScript file (.js, .ts, .tsx, .jsx) containing functions, create corresponding test files
+- Use Jest testing framework exclusively
+- Generate exactly 5 test cases per function covering: normal cases, edge cases, boundary conditions, invalid inputs, and expected failures
+- Create separate JSON files for test case data
+
+Output Structure:
+For each function file (e.g., filename.js/.ts/.tsx/.jsx):
+1. Create tests/filename.test.js - Jest unit test file
+2. Create tests/filename.testCase.json - Test case data (5 cases per function)
+3. Return clean json 
+
+Test Case JSON Format:
 {
   "functionName": [
     {"input": [param1, param2], "expected": result, "description": "test description"},
     {"input": [param1, param2], "expected": result, "description": "test description"}
   ]
 }
-
-example output(always follow this format)no extra characters allowed
-{
-  "tests/add.test.js": "const add = require('../add.js');\\nconst testCases = require('./add.testCase.json');\\n\\ndescribe('add', () => {\\n  test.each(testCases.add)(\\n    'Function should %s',\\n    ({ input, expected, description }) => {\\n      expect(add(...input)).toBe(expected);\\n    }\\n  );\\n});",
-  "tests/add.testCase.json": "{\\n  \\"add\\": [\\n    {\\n      \\"input\\": [2, 3],\\n      \\"expected\\": 5,\\n      \\"description\\": \\"correctly add two positive integers\\"\\n    },\\n    {\\n      \\"input\\": [0, -5],\\n      \\"expected\\": -5,\\n      \\"description\\": \\"correctly add zero and a negative integer\\"\\n    },\\n    {\\n      \\"input\\": [0.1, 0.2],\\n      \\"expected\\": 0.30000000000000004,\\n      \\"description\\": \\"handle floating point addition with JavaScript's precision\\"\\n    },\\n    {\\n      \\"input\\": [\\"Hello, \\", \\"World!\\"],\\n      \\"expected\\": \\"Hello, World!\\",\\n      \\"description\\": \\"concatenate strings when both inputs are strings\\"\\n    },\\n    {\\n      \\"input\\": [10, \\"5\\"],\\n      \\"expected\\": \\"105\\",\\n      \\"description\\": \\"concatenate a number and a string\\"\\n    }\\n  ]\\n}",
+ Example output (follow strictly)
+ {
+  "tests/add.test.js": "const add = require('../add');\\nconst testCases = require('./add.testCase.json');\\n\\ndescribe('add', () => {\\n  testCases.add.forEach(testCase => {\\n    test(testCase.description, () => {\\n      expect(add(...testCase.input)).toBe(testCase.expected);\\n    });\\n  });\\n});\\n",
+  
+  "tests/add.testCase.json": "{\\n  \\"add\\": [\\n    {\\"input\\": [2,3], \\"expected\\": 5, \\"description\\": \\"should correctly add two positive numbers\\"},\\n    {\\"input\\": [0,0], \\"expected\\": 0, \\"description\\": \\"should return 0 when adding two zeros\\"},\\n    {\\"input\\": [-1,-5], \\"expected\\": -6, \\"description\\": \\"should correctly add two negative numbers\\"},\\n    {\\"input\\": [1000000,2000000], \\"expected\\": 3000000, \\"description\\": \\"should correctly add large numbers\\"},\\n    {\\"input\\": [\\"a\\",2], \\"expected\\": \\"a2\\", \\"description\\": \\"should concatenate string and number due to type coercion\\"}\\n  ]\\n}",
+  
+  "tests/diff.test.js": "const diff = require('../diff');\\nconst testCases = require('./diff.testCase.json');\\n\\ndescribe('diff', () => {\\n  testCases.diff.forEach(testCase => {\\n    test(testCase.description, () => {\\n      expect(diff(...testCase.input)).toBe(testCase.expected);\\n    });\\n  });\\n});\\n",
+  
+  "tests/diff.testCase.json": "{\\n  \\"diff\\": [\\n    {\\"input\\": [5,2], \\"expected\\": 3, \\"description\\": \\"should correctly subtract two positive numbers\\"},\\n    {\\"input\\": [5,5], \\"expected\\": 0, \\"description\\": \\"should return 0 when subtracting identical numbers\\"},\\n    {\\"input\\": [2,5], \\"expected\\": -3, \\"description\\": \\"should return a negative result when second number is larger\\"},\\n    {\\"input\\": [-5,-2], \\"expected\\": -3, \\"description\\": \\"should correctly subtract negative numbers\\"},\\n    {\\"input\\": [\\"a\\",2], \\"expected\\": \\"NaN\\", \\"description\\": \\"should return NaN when inputs are not numbers\\"}\\n  ]\\n}"
 }
+
+Jest Test Format:
+
+- Use describe() blocks for each function
+- Use test() or it() for individual test cases
+- Import test cases from JSON files
+- Include proper assertions with expect()
+
+Output Format:
+Return a JSON object where keys are file paths and values are file contents. Include only the generated test files.
+
+IMPORTANT:
+- All keys and string values must use double quotes only
+- Escape any backslashes in paths
+- Replace all line breaks inside strings with \n
+- Return a single JSON object directly, no extra text
+*Codebase:*
 `;
 
 async function main(input) {
