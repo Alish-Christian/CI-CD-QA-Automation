@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/navbar';
 import AppFooter from '../components/AppFooter';
 import fetchReports from '../api/report';
+import { Link, useNavigate } from 'react-router-dom';
 // --- Helper Components & Icons (Self-contained) ---
 
 const ZapIcon = ({ className }) => (
@@ -52,6 +53,7 @@ const BarChartPlaceholder = () => (
 export default function Dashboard() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [recentRuns, setRecentRuns] = useState([]);
+      const navigate = useNavigate();
 useEffect(() => {
     const timer = setTimeout(() => setIsLoaded(true), 100);
 
@@ -144,6 +146,7 @@ useEffect(() => {
                                 )}
                             </div>
                         </div>
+                        
                     ))}
                 </div>
 
@@ -155,25 +158,20 @@ useEffect(() => {
                         <div className="overflow-x-auto">
                             <table className="table w-full">
                                 <thead>
-                                    <tr className="border-b border-black/10">
-                                        <th className="bg-transparent">Run ID</th>
-                                        <th className="bg-transparent">Branch</th>
-                                        <th className="bg-transparent">Status</th>
-                                        <th className="bg-transparent">Duration</th>
-                                        <th className="bg-transparent">Time</th>
-                                    </tr>
+                                
                                 </thead>
                                 <tbody>
                                     {recentRuns.map((run, index) => (
-                                        <tr key={run.id} className="hover:bg-black/5 border-b border-black/5 transition-colors duration-300 animate-fade-in-up" style={{ animationDelay: `${500 + index * 80}ms` }}>
+                                       <tr key={run.id} onClick={() => navigate("/view", { state: { run } })} className="hover:bg-black/5 border-b border-black/5 transition-colors duration-300 animate-fade-in-up" style={{ animationDelay: `${500 + index * 80}ms` }}>
                                             <td className="font-mono text-primary bg-transparent">{run.commit_id}</td>
                                             <td className="bg-transparent">{run.repo_url}</td>
                                             <td className="bg-transparent">
-                                                {(run.passed/run.total)*100}% passed
+                                               {((run.passed / run.total) * 100).toFixed(2)}%
                                             </td>
                                             <td className="bg-transparent">3m 4s</td>
-                                            <td className="text-neutral -content/60 text-white">{run.timestamp}</td>
+                                            <td className="text-neutral -content/60 text-white">{new Date(run.timestamp).toLocaleString()}</td>
                                         </tr>
+                                       
                                     ))}
                                 </tbody>
                             </table>

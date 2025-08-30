@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import LoginPage from './pages/LoginPage'
 import SignUp from './pages/Signup'
 import Doc from './pages/Doc'
+import ViewReport from './pages/ViewReport'
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/docs" element={<Doc />} />
+           <Route path="/view" element={<ViewReport />} />
           {/* <Route path="*" element={<div className="p-6"><h1 className="text-2xl font-bold">404 - Page Not Found</h1></div>} /> */}
         </Routes>
       </main>
