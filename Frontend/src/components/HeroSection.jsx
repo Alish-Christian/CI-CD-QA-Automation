@@ -16,7 +16,7 @@ function HeroSection() {
           {/* 2. Replace the <img> tag with the Spline component */}
           <Spline
             scene="https://prod.spline.design/Jl5jY0o4rRJS7V2z/scene.splinecode"
-            className="transform hover:scale-105 transition-transform duration-300" // You can still apply classes
+            className="transform  transition-transform duration-300" // You can still apply classes
           />
         </div>
 
