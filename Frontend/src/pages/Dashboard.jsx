@@ -58,6 +58,7 @@ useEffect(() => {
     const loadReports = async () => {
         try {
             const result = await fetchReports();
+            result.reverse();
             setRecentRuns(result);
         } catch (err) {
             console.error("Error loading reports:", err);
