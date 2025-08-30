@@ -151,7 +151,8 @@ useEffect(() => {
                 </div>
 
                 {/* Main Content Area */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className='w-full'>
+                <div className="grid grid-cols-1  gap-8">
                     {/* Recent Test Runs */}
                     <div className="lg:col-span-2 bg-base-100/50 backdrop-blur-sm p-6 rounded-2xl border border-black/10 shadow-lg animate-fade-in-up" style={{ animationDelay: '400ms' }}>
                         <h2 className="text-xl font-bold mb-4 text-base-content">Recent Test Runs</h2>
@@ -178,11 +179,8 @@ useEffect(() => {
                         </div>
                     </div>
 
-                    {/* Test Analytics Chart */}
-                    <div className="bg-base-100/50 backdrop-blur-sm p-6 rounded-2xl border border-black/10 shadow-lg animate-fade-in-up" style={{ animationDelay: '500ms' }}>
-                        <h2 className="text-xl font-bold mb-4 text-base-content">Tests Passed Over Time</h2>
-                        <BarChartPlaceholder />
-                    </div>
+                  
+                </div>
                 </div>
             </div>
 
